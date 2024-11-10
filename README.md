@@ -27,7 +27,7 @@ python interactive_gpt.py
 
 ## Demo
 
-![](https://github.com/lambdasec/autofix/blob/main/demo.gif)
+
 
 ## How it works?
 ![](https://github.com/yone456/BugNet/blob/main/image.png)
