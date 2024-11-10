@@ -13,9 +13,7 @@ Our proposed tool, "BugNet," integrates with Zap to detect vulnerabilities throu
 ## Setup
 
 ```
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+conda env create -n zap_llm -f zap_llm.yml
 ```
 
 ## Usage
