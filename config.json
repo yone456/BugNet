@@ -1,0 +1,8 @@
+{
+    "openai_api_key": "your_openai_api_key_here",  
+    "zap_api_key": "your_zap_api_key_here",
+    "proxy": {
+        "http": "http://your_http_proxy_here",
+        "https": "https://your_https_proxy_here"
+    }
+}
