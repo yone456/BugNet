@@ -19,11 +19,7 @@ api_key = config.get("openai_api_key")
 proxy = config.get("proxy")
 
 # ZAPのプロキシ設定
-proxies = proxy#{
-   # 'http': 'http://localhost:8080',
-  #  'https': 'http://localhost:8080'
-#}
-
+proxies = proxy
 
 def judgement(element, request_data, response_data):
     
