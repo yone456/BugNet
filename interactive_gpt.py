@@ -48,7 +48,6 @@ def judgement(element, request_data, response_data):
     ]
    )
     judge = response['choices'][0]['message']['content']
-    print("judge!!!!!!!!!!!!!!", judge)
     
     return judge
     
