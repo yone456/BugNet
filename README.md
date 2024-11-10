@@ -29,4 +29,4 @@ python autofix.py --input examples/example.java
 ![](https://github.com/lambdasec/autofix/blob/main/demo.gif)
 
 ## How it works?
-![](https://github.com/lambdasec/autofix/blob/main/howitworks.png)
+![](https://github.com/yone456/BugNet/blob/main/image.png)
