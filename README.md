@@ -21,7 +21,8 @@ pip install -r requirements.txt
 ## Usage
 
 ```
-python autofix.py --input examples/example.java
+python zap_proxy.py
+python interactive_gpt.py
 ```
 
 ## Demo
