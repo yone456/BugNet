@@ -23,9 +23,9 @@ Our proposed tool, "BugNet," integrates with Zap to detect vulnerabilities throu
 
 ```
 install OWASP ZAP 2.11.1（Verification is in progress to confirm compatibility with other versions.）
-Please include the API keys for OpenAI and ZAP, as well as proxy information, in config.json
 git clone https://github.com/yone456/BugNet.git
 cd BugNet
+Please include the API keys for OpenAI and ZAP, as well as proxy information, in config.json
 conda env create -n zap_llm -f zap_llm.yml
 conda activate zap_llm
 ```
