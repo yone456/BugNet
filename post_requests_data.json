@@ -12,12 +12,5 @@
         "request_body": "{\"UserId\":22,\"answer\":\"1\",\"SecurityQuestionId\":1}",
         "response_header": "HTTP/1.1 201 Created\r\nAccess-Control-Allow-Origin: *\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: SAMEORIGIN\r\nFeature-Policy: payment 'self'\r\nX-Recruiting: /#/jobs\r\nLocation: /api/SecurityAnswers/21\r\nContent-Type: application/json; charset=utf-8\r\nContent-Length: 226\r\nETag: W/\"e2-8EVVp6xe1n2LobxncHiytalQofU\"\r\nVary: Accept-Encoding\r\nDate: Mon, 28 Oct 2024 06:10:21 GMT\r\nConnection: keep-alive\r\nKeep-Alive: timeout=5\r\n\r\n",
         "response_body": "{\"status\":\"success\",\"data\":{\"id\":21,\"UserId\":22,\"answer\":\"5115532ab09e8da7239e4aa9083c5a9ddac85e1299d5f280865e9737aa30e577\",\"SecurityQuestionId\":1,\"updatedAt\":\"2024-10-28T06:10:21.880Z\",\"createdAt\":\"2024-10-28T06:10:21.880Z\"}}"
-    },
-    {
-        "url": "http://localhost:3000/socket.io/?EIO=4&transport=polling&t=PBHmUXl&sid=KtVcXKFSCaTuaVOzAAAE",
-        "request_header": "POST http://localhost:3000/socket.io/?EIO=4&transport=polling&t=PBHmUXl&sid=KtVcXKFSCaTuaVOzAAAE HTTP/1.1\r\nHost: localhost:3000\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0\r\nAccept: */*\r\nAccept-Language: ja,en-US;q=0.7,en;q=0.3\r\nContent-type: text/plain;charset=UTF-8\r\nContent-Length: 2\r\nOrigin: http://localhost:3000\r\nDNT: 1\r\nConnection: keep-alive\r\nReferer: http://localhost:3000/\r\nPragma: no-cache\r\nCache-Control: no-cache\r\n\r\n",
-        "request_body": "40",
-        "response_header": "HTTP/1.1 200 OK\r\nAccess-Control-Allow-Origin: http://localhost:4200\r\nVary: Origin\r\nContent-Type: text/html\r\nContent-Length: 2\r\nDate: Mon, 28 Oct 2024 06:13:19 GMT\r\nConnection: keep-alive\r\nKeep-Alive: timeout=5\r\n\r\n",
-        "response_body": "ok"
     }
 ]
