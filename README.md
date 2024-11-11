@@ -13,7 +13,9 @@ Our proposed tool, "BugNet," integrates with Zap to detect vulnerabilities throu
 ## Setup
 
 ```
+install OWASP ZAP 2.11.1（Verification is in progress to confirm compatibility with other versions.） 
 conda env create -n zap_llm -f zap_llm.yml
+conda activate zap_llm
 ```
 
 ## Usage
