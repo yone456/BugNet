@@ -28,4 +28,4 @@ python interactive_gpt.py
 
 
 ## How it works?
-![](https://github.com/yone456/BugNet/blob/main/image.png)
+![](https://github.com/yone456/BugNet/blob/main/image_en.png)
