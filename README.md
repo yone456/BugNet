@@ -2,7 +2,7 @@
 
 Our proposed tool, "BugNet," integrates with Zap to detect vulnerabilities through three primary steps. 
 
-- In the first step, we activate Zap's proxy function to perform scans and routine communications, collecting request and response data. Then, we run a custom 　script on this data to extract only the POST request and response communications. 
+- In the first step, we activate Zap's proxy function to perform scans and routine communications, collecting request and response data. Then, we run a custom script on this data to extract only the POST request and response communications. 
 
 - In the second step, these extracted POST requests and responses are sent to an LLM agent, which performs request tampering. The tampered requests are then resent to the target web application. This agent is built on ReAct and Self-Reflection principles, using ReAct prompts to analyze the POST requests and responses it receives, and then modifying the requests. 
 
