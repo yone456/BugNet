@@ -1,4 +1,5 @@
 # BugNet
+Currently, tools like Zap and BurpSuite can detect common vulnerabilities such as XSS and SQL injection. However, these tools struggle to detect vulnerabilities specific to web applications, such as privilege escalation, tampering with purchase information, and user impersonation. Our tool leverages an LLM agent to detect web application-specific vulnerabilities that are difficult for existing scanning tools to identify, rather than focusing on general vulnerabilities like SQL injection and XSS.
 
 Our proposed tool, "BugNet," integrates with Zap to detect vulnerabilities through three primary steps. 
 
