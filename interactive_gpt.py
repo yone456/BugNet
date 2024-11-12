@@ -3,8 +3,15 @@ import openai
 import requests
 import json
 import re
+from datetime import datetime
+import csv
 
 max_iters = 4
+
+report_thought = []
+report_request = []
+report_response_status_code = []
+report_response_text = []
 
 ascii_art = pyfiglet.figlet_format("BugNet")
 print(ascii_art)
@@ -19,6 +26,23 @@ proxy = config.get("proxy")
 # ZAPのプロキシ設定
 proxies = proxy
 
+def summary(Thought_list, report_thought):
+    thoughts_text = "\n".join(Thought_list)
+
+# GPT-4に要約リクエストを送信
+    response = openai.ChatCompletion.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": "以下のテキストでどのような脆弱性を検証しているのかを要約してください"},
+        {"role": "user", "content": thoughts_text}
+    ]
+)
+
+# 要約結果の表示
+    summary = response['choices'][0]['message']['content']
+    report_thought.append(summary)
+
+    return report_thought
 
 def judgement(element, request_data, response_data):
     
@@ -75,13 +99,14 @@ def send_request_via_zap_proxy(request_data):
         
 
 
-def self_reflection(request_data, response_data):
+def self_reflection(element, request_data, response_data):
     
   
     request_data = str(request_data)
-    system_prompt = """あなたは脆弱性診断のためのアシスタントです。テストで使用された攻撃requestとその結果が与えられます。あなたの目標は、攻撃結果に基づいて攻撃requestがどのように間違っているかを説明することです。この説明は、後で再試行する際のヒントとして使用されます。回答には簡潔な説明だけを提供し、攻撃requestは含めません。"""
+    system_prompt = """あなたは脆弱性診断のためのアシスタントです。テストで使用された攻撃requestとその結果が与えられます。あなたの目標は、正常系通信との比較を行いながら、攻撃結果に基づいて攻撃requestがどのように作用しているかを説明し、脆弱性が存在するかどうかを判断してください。この説明は、後で再試行する際のヒントとして使用されます。回答には簡潔な説明だけを提供し、攻撃requestは含めません。"""
 
     user_prompt = f"""
+改ざん前の正常系通信のrequestやresponse情報：{element}
 攻撃リクエスト：{request_data}
 ステータスコード：{response_data.status_code}
 レスポンス本文：{response_data.text}
@@ -95,24 +120,25 @@ def self_reflection(request_data, response_data):
     ]
 )
     reflection = response['choices'][0]['message']['content']
-    print("self reflection", reflection)
+  #  print("self reflection", reflection)
     
     return reflection, user_prompt
     
 
-def resend_prompt(element, previus_element, reflection):
+def resend_prompt(element, previus_element, reflection, thought_list):
    system_prompt = """あなたは熟練したセキュリティ診断者です。特にWebアプリケーションのセキュリティ診断において、通信パラメータ改ざんに関連する脆弱性を発見することを専門としています。次に示すシナリオにおいて、ユーザー権限の不正な昇格やセッションの乗っ取りが行えるかどうか、慎重に診断してください。
 - 対象とするパラメータには、セッションID、ユーザーID、権限情報、価格情報などがあります。
 """
 
-   user_prompt_1 = f"""observationである過去の攻撃request、攻撃結果、および攻撃requestを適切に生成するためのヒント、正常系通信のrequestやresponseを分析して不正なrequestやresponseの改ざんが可能かどうか、具体的な改ざん手法とその結果を示してください。
+   user_prompt_1 = f"""observationである過去の攻撃request、攻撃結果、および攻撃requestを適切に生成するためのヒント、正常系通信のrequestやresponseを分析して不正なrequestやresponseの改ざんが可能かどうか、具体的な改ざん手法とその結果を示してください。以前の攻撃が失敗している場合は、改ざんを行うパラメータの変更を行うなどの工夫を行ってください。間違っても正常系通信と同じパラメータを送信するような無意味な行動はとらないでください。
 分析のフレームワークは下記を使用してください。Actionについては例を参考にしながら実際のAction部分のみを出力してください。また、Actionの出力以降は何も出力しないでください。
+
 
 observation_1:攻撃request、攻撃結果が記載されています。{previus_element}
 observation_2:攻撃requestを適切に生成するためのヒントが記載されています。{reflection}
 observation_3:具体的な正常系通信のrequestやresponse情報が記載されています。{element}
 
-Thought:分析を基にしたあなたの考えを出力してください
+Thought:分析を基にしたあなたの考えを必ず出力してください。出力はThought：から始めてください。
 
 Action:改ざんしたrequest header,request bodyのみを出力してください。出力形式は例を参考にしながらJSON形式にしてください。
 """
@@ -136,6 +162,14 @@ Action:改ざんしたrequest header,request bodyのみを出力してくださ�
 
 # レスポンスの取得と出力
    reply = response['choices'][0]['message']['content']
+
+  # print(reply)
+   thought_text = re.search(r"Thought:(.*?)(?:\n|$)", reply, re.DOTALL)
+   if thought_text:
+      thought_text = thought_text.group(1).strip()
+      thought_list.append(thought_text)
+ #  print("Extracted Thought:", thought_text)
+
    json_match = re.search(r"\{.*\}", reply, re.DOTALL)
 
 
@@ -147,7 +181,7 @@ Action:改ざんしたrequest header,request bodyのみを出力してくださ�
 
    re_action = json.loads(action)
           
-   return re_action
+   return re_action, thought_list
 
 
     
@@ -158,7 +192,7 @@ with open('post_requests_data.json', 'r') as file:
     data = json.load(file)
 
 for i_data in data:
-   # print(i_data)
+    thought_list = []
     # 1番目の要素を取り出す (インデックス0)
     element = i_data
 
@@ -175,7 +209,7 @@ for i_data in data:
 
     observation:具体的なrequestやresponse情報が記載されています。{element}
 
-    Thought:分析を基にしたあなたの考えを出力してください
+    Thought:分析を基にしたあなたの考えを必ず出力してください。出力はThought：から始めてください。
 
     Action:改ざんしたrequest header,request bodyのみを出力してください。出力形式は例を参考にしながらJSON形式にし、要素はすべてダブルクォーテーションで囲むようにしてください。
     """
@@ -199,6 +233,15 @@ for i_data in data:
 
     # レスポンスの取得と出力
     reply = response['choices'][0]['message']['content']
+
+    thought_text = re.search(r"Thought:(.*?)(?:\n|$)", reply, re.DOTALL)
+    if thought_text:
+        thought_text = thought_text.group(1).strip()
+        thought_list.append(thought_text)
+   # print("Extracted Thought:", thought_text)
+
+  #  print(reply)
+
     json_match = re.search(r"\{.*\}", reply, re.DOTALL)
     if json_match:
        action = json_match.group(0)  # JSON部分のみを取得
@@ -211,29 +254,51 @@ for i_data in data:
     judge = judgement(element,request_data, response_data)
 
     if judge=="True":
+      report_thought = summary(thought_list, report_thought)
+      report_request.append(request_data)
+      report_response_status_code.append(response_data.status_code)
+      report_response_text.append(response_data.text)
       print("脆弱性が確認されました。次のシナリオに進みます。")
       continue
 
-    reflection, previus_element = self_reflection(request_data, response_data)
+    reflection, previus_element = self_reflection(element, request_data, response_data)
     for cur_iter in range(max_iters):
 
-        re_action = resend_prompt(element, previus_element, reflection)
+        re_action, thought_list = resend_prompt(element, previus_element, reflection, thought_list)
         request_data, response_data = send_request_via_zap_proxy(re_action)
         judge = judgement(element,request_data, response_data)
         if judge=="True":    
+          report_thought = summary(thought_list, report_thought)
+          report_request.append(request_data)
+          report_response_status_code.append(response_data.status_code)
+          report_response_text.append(response_data.text)
           print("脆弱性が確認されました。次のシナリオに進みます。")
           break
 
-        reflection, previus_element = self_reflection(request_data, response_data)
+        reflection, previus_element = self_reflection(element, request_data, response_data)
+
+  
 
 
 print("攻撃を終了します")
+print("レポートの出力を行っています")
 
 
+current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+# レポートの生成
+csv_file_name = "vulnerability_report.csv"
+header = ["生成日時", "脆弱性の説明 (Thought)", "リクエスト内容 (Request)", "レスポンスステータスコード (Response Status Code)", "レスポンス本文 (Response Text)"]
 
+# CSVファイルとして保存
+with open(csv_file_name, mode="w", encoding="utf-8", newline="") as file:
+    writer = csv.writer(file)
+    
+    # ヘッダーを書き込む
+    writer.writerow(header)
+    
+    # 各リストから1つずつ要素を取り出してCSVに追加
+    for thought, request, status_code, response_text in zip(report_thought, report_request, report_response_status_code, report_response_text):
+        writer.writerow([current_time, thought, request, status_code, response_text])
 
-
-
-
-
+print(f"CSVレポートが '{csv_file_name}' として出力されました。")
