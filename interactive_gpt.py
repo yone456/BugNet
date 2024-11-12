@@ -9,6 +9,7 @@ import csv
 max_iters = 4
 
 report_thought = []
+report_element = []
 report_request = []
 report_response_status_code = []
 report_response_text = []
@@ -130,7 +131,7 @@ def resend_prompt(element, previus_element, reflection, thought_list):
 - 対象とするパラメータには、セッションID、ユーザーID、権限情報、価格情報などがあります。
 """
 
-   user_prompt_1 = f"""observationである過去の攻撃request、攻撃結果、および攻撃requestを適切に生成するためのヒント、正常系通信のrequestやresponseを分析して不正なrequestやresponseの改ざんが可能かどうか、具体的な改ざん手法とその結果を示してください。以前の攻撃が失敗している場合は、改ざんを行うパラメータの変更を行うなどの工夫を行ってください。間違っても正常系通信と同じパラメータを送信するような無意味な行動はとらないでください。
+   user_prompt_1 = f"""observationである過去の攻撃request、攻撃結果、および攻撃requestを適切に生成するためのヒント、正常系通信のrequestやresponseを分析して不正なrequestやresponseの改ざんが可能かどうか、具体的な改ざん手法とその結果を示してください。以前の攻撃が失敗している場合は、改ざんを行うパラメータの変更を行うことや同時に複数のパラメータを変更するなどの工夫を行ってください。間違っても正常系通信と同じパラメータを送信するような無意味な行動はとらないでください。
 分析のフレームワークは下記を使用してください。Actionについては例を参考にしながら実際のAction部分のみを出力してください。また、Actionの出力以降は何も出力しないでください。
 
 
@@ -204,7 +205,7 @@ for i_data in data:
     - 対象とするパラメータには、セッションID、ユーザーID、権限情報、価格情報などがあります。
     """
 
-    prompt = f"""observationであるrequestやresponseを分析して不正なrequestやresponseの改ざんが可能かどうか、具体的な改ざん手法とその結果を示してください。
+    prompt = f"""observationであるrequestやresponseを分析して不正なrequestやresponseの改ざんが可能かどうか、具体的な改ざん手法とその結果を示してください。場合によっては複数のパラメータを一度に変更することも視野に入れてください。
     分析のフレームワークは下記を使用してください。Actionについては例を参考にしながら実際のAction部分のみを出力してください。また、Actionの出力以降は何も出力しないでください。
 
     observation:具体的なrequestやresponse情報が記載されています。{element}
@@ -255,6 +256,7 @@ for i_data in data:
 
     if judge=="True":
       report_thought = summary(thought_list, report_thought)
+      report_element.append(element)
       report_request.append(request_data)
       report_response_status_code.append(response_data.status_code)
       report_response_text.append(response_data.text)
@@ -269,6 +271,7 @@ for i_data in data:
         judge = judgement(element,request_data, response_data)
         if judge=="True":    
           report_thought = summary(thought_list, report_thought)
+          report_element.append(element)
           report_request.append(request_data)
           report_response_status_code.append(response_data.status_code)
           report_response_text.append(response_data.text)
@@ -284,21 +287,27 @@ print("攻撃を終了します")
 print("レポートの出力を行っています")
 
 
-current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+log_file_name = "vulnerability_report.log"
 
-# レポートの生成
-csv_file_name = "vulnerability_report.csv"
-header = ["生成日時", "脆弱性の説明 (Thought)", "リクエスト内容 (Request)", "レスポンスステータスコード (Response Status Code)", "レスポンス本文 (Response Text)"]
+log_file_name = "vulnerability_report.log"
 
-# CSVファイルとして保存
-with open(csv_file_name, mode="w", encoding="utf-8", newline="") as file:
-    writer = csv.writer(file)
-    
-    # ヘッダーを書き込む
-    writer.writerow(header)
-    
-    # 各リストから1つずつ要素を取り出してCSVに追加
-    for thought, request, status_code, response_text in zip(report_thought, report_request, report_response_status_code, report_response_text):
-        writer.writerow([current_time, thought, request, status_code, response_text])
+# ログファイルに追記する関数
+def write_log_entry(thought, request, status_code, response_text):
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry = (
+        f"--- 脆弱性レポート ---\n"
+        f"生成日時: {current_time}\n"
+        f"脆弱性の説明 (Thought): {thought}\n"
+        f"リクエスト内容 (Request):\n{request}\n"
+        f"レスポンスステータスコード (Response Status Code): {status_code}\n"
+        f"レスポンス本文 (Response Text):\n{response_text}\n"
+        f"----------------------\n\n"
+    )
+    with open(log_file_name, "a", encoding="utf-8") as log_file:
+        log_file.write(log_entry)
 
-print(f"CSVレポートが '{csv_file_name}' として出力されました。")
+# 各リストからデータを取り出してログに書き込む
+for thought, request, status_code, response_text in zip(report_thought, report_request, report_response_status_code, report_response_text):
+    write_log_entry(thought, request, status_code, response_text)
+
+print(f"脆弱性レポートが '{log_file_name}' に出力されました。")
