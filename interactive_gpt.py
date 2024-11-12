@@ -286,17 +286,16 @@ for i_data in data:
 print("攻撃を終了します")
 print("レポートの出力を行っています")
 
-
-log_file_name = "vulnerability_report.log"
-
-log_file_name = "vulnerability_report.log"
+# ファイル生成日時を含むログファイル名
+current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_file_name = f"vulnerability_report_{current_time}.log"
 
 # ログファイルに追記する関数
 def write_log_entry(thought, request, status_code, response_text):
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_entry_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_entry = (
         f"--- 脆弱性レポート ---\n"
-        f"生成日時: {current_time}\n"
+        f"生成日時: {log_entry_time}\n"
         f"脆弱性の説明 (Thought): {thought}\n"
         f"リクエスト内容 (Request):\n{request}\n"
         f"レスポンスステータスコード (Response Status Code): {status_code}\n"
