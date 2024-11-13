@@ -44,5 +44,8 @@ First, start OWASP ZAP and the ZAP proxy, then access the OWASP Juice Shop and r
 It is confirmed that the registration request was recorded in OWASP ZAP.
 ![](https://github.com/yone456/BugNet/blob/main/img/demo_zap_log.png)
 
+Next, run zap_proxy.py to extract the POST requests and responses.
+![](https://github.com/yone456/BugNet/blob/main/img/zap_proxy_log.png)
+
 ## How it works?
 ![](https://github.com/yone456/BugNet/blob/main/img/image_en.png)
