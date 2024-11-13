@@ -38,7 +38,7 @@ python interactive_gpt.py
 ```
 
 ## Demo
-[View Demo](https://github.com/yone456/BugNet/blob/main/BugNet_Demo.pdf)
+[You can view the demo here](https://github.com/yone456/BugNet/blob/main/BugNet_Demo.pdf)
 
 ## How it works?
 ![](https://github.com/yone456/BugNet/blob/main/img/image_en.png)
