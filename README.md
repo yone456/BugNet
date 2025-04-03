@@ -14,7 +14,7 @@ The upcoming update will include:
 Stay tuned for the next release!
 
 
-
+# Description
 Currently, tools like Zap and BurpSuite can detect common vulnerabilities such as XSS and SQL injection through their scanning capabilities. However, these tools struggle to detect web application-specific vulnerabilities, such as privilege escalation, tampering with purchase information, and user impersonation. Our tool focuses on detecting these specific web application vulnerabilities, which are challenging to identify with existing scanning tools, rather than focusing on general vulnerabilities like SQL injection and XSS, by utilizing an LLM agent.
 
 Expected vulnerabilities to be detected
